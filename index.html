@@ -4,14 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>บัตรสมาชิกดิจิทัล</title>
-  <!-- LIFF SDK -->
+  <!-- LINE LIFF SDK -->
   <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-  <!-- QR Code Library -->
+  <!-- QR Code Generator -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background-color: #f1f5f9;
+      background-color: #f8fafc;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -22,9 +22,9 @@
     }
     .card {
       background: #ffffff;
-      padding: 24px;
-      border-radius: 16px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      padding: 28px 20px;
+      border-radius: 18px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.06);
       width: 100%;
       max-width: 320px;
       text-align: center;
@@ -34,6 +34,18 @@
       font-size: 14px;
       color: #64748b;
       margin-bottom: 12px;
+    }
+    .shop-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 16px;
+      line-height: 1.4;
+    }
+    #qrcode {
+      display: flex;
+      justify-content: center;
+      margin: 10px auto;
     }
     input {
       width: 100%;
@@ -45,8 +57,8 @@
       outline: none;
       margin-bottom: 12px;
       text-align: center;
-      letter-spacing: 2px;
       font-family: monospace;
+      letter-spacing: 2px;
     }
     button {
       width: 100%;
@@ -59,28 +71,6 @@
       font-weight: 600;
       cursor: pointer;
     }
-    button:disabled {
-      background-color: #94a3b8;
-    }
-    .cust-name {
-      font-size: 18px;
-      font-weight: 600;
-      color: #1e293b;
-      margin-bottom: 6px;
-    }
-    .rfid-num {
-      font-size: 22px;
-      font-weight: 700;
-      letter-spacing: 2px;
-      color: #059669;
-      margin-top: 10px;
-      font-family: monospace;
-    }
-    #qrcode {
-      display: flex;
-      justify-content: center;
-      margin: 16px auto;
-    }
   </style>
 </head>
 <body>
@@ -88,27 +78,27 @@
   <div class="card">
     <div id="status" class="status">กำลังเชื่อมต่อ LINE...</div>
 
-    <!-- ส่วนที่ 1: ฟอร์มผูกบัตร (แสดงเมื่อยังไม่เคยผูก) -->
+    <!-- ฟอร์มลงทะเบียนครั้งแรก -->
     <div id="bindSection" style="display: none;">
-      <h3 style="margin-top: 0; color: #1e293b;">ลงทะเบียนผูกบัตร</h3>
+      <h3 style="margin-top: 0; color: #1e293b; font-size: 17px;">ลงทะเบียนบัตรสมาชิก</h3>
       <p style="font-size: 13px; color: #64748b; margin-bottom: 16px;">
-        กรอกเลข RFID 10 หลักบนบัตรของคุณ เพื่อเปิดใช้งานบัตรดิจิทัล
+        กรอกเลข RFID บนบัตรของคุณเพื่อผูกข้อมูลเข้ากับบัญชี LINE
       </p>
       <input type="text" id="rfidInput" placeholder="เลข RFID 10 หลัก" maxlength="10">
-      <button id="btnSubmit" onclick="bindAccount()">ยืนยันข้อมูล</button>
+      <button onclick="bindAccount()">ยืนยัน</button>
     </div>
 
-    <!-- ส่วนที่ 2: หน้าแสดง QR Code สมาชิก (แสดงเมื่อผูกสำเร็จแล้ว) -->
+    <!-- บัตรสมาชิกดิจิทัล -->
     <div id="cardSection" style="display: none;">
-      <div id="custName" class="cust-name"></div>
+      <div id="shopName" class="shop-name"></div>
       <div id="qrcode"></div>
-      <div id="rfidNum" class="rfid-num"></div>
     </div>
   </div>
 
   <script>
-    const MY_LIFF_ID = "2012173583-rp3RTemX";         // LIFF ID ตัวใหม่
-    const GAS_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AUkAhnTDsXqOP0cdvjD6dfSy3pxwzx-4pC86onAxsdaS2iCR6-VQ9ppqyRTYAPAvMEWk5Q5D0WylQUMA6pl-OEYhjlPJOClZzDZKKbNhdsRKYSQrQYNVy3GXbG2N4MzhRHVnDlbfqHWVzkf7bM1Uvs7LFxpC-e26VqTeI-smhaaiYYLFfIXk7p_oLtVOoTHHsR0FfcCQCvmUmfX-Vo_IwtMVAy39XJl2_ncnDgiKLQdOO4jqMQb7kP2PA70QKQy6S0vLJAQw3CDeXoo6ddYav9g_9OIQ7DT1cw&lib=MtADi0lyt6ABoH4pw9BNAtZWlnWsxLaT-";   // ลิงก์ Web App /exec จาก Apps Script
+    const MY_LIFF_ID = "2012173583-rp3RTemX"; 
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbxIjN53ODjYwtWw1IHNsc6PCbiI9adPzvhiNgx0ZbZ5Qhalv2cjLDULdfW9xd4fBTzE/exec"; // วาง Web App URL ที่ลงท้ายด้วย /exec ตรงนี้
+
     let currentLineUid = "";
 
     async function initApp() {
@@ -124,78 +114,71 @@
         const profile = await liff.getProfile();
         currentLineUid = profile.userId;
 
-        statusEl.innerText = "กำลังตรวจสอบสถานะ...";
+        statusEl.innerText = "กำลังตรวจสอบข้อมูล...";
 
-        // เช็คว่า User ID นี้ผูกกับ RFID ใดไว้หรือยัง
-        const res = await fetch(`${GAS_URL}?action=check&userId=${encodeURIComponent(currentLineUid)}`);
+        const res = await fetch(`${GAS_URL}?action=check_liff&userId=${encodeURIComponent(currentLineUid)}`);
         const data = await res.json();
 
         if (data.success && data.isBound) {
-          showCard(data.customerName, data.memberId);
+          showCard(data.customerName, data.rfid);
         } else {
           statusEl.style.display = "none";
           document.getElementById("bindSection").style.display = "block";
         }
       } catch (err) {
         statusEl.innerText = "เกิดข้อผิดพลาดในการโหลดข้อมูล";
-        console.error(err);
       }
     }
 
     async function bindAccount() {
       const rfid = document.getElementById("rfidInput").value.trim();
       const statusEl = document.getElementById("status");
-      const btn = document.getElementById("btnSubmit");
 
       if (!rfid) {
         alert("กรุณากรอกเลข RFID");
         return;
       }
 
-      btn.disabled = true;
       statusEl.style.display = "block";
       statusEl.innerText = "กำลังบันทึกข้อมูล...";
 
       try {
-        const res = await fetch(`${GAS_URL}?action=bind&userId=${encodeURIComponent(currentLineUid)}&rfid=${encodeURIComponent(rfid)}`);
+        const res = await fetch(`${GAS_URL}?action=bind_liff&userId=${encodeURIComponent(currentLineUid)}&rfid=${encodeURIComponent(rfid)}`);
         const data = await res.json();
 
         if (data.success) {
           document.getElementById("bindSection").style.display = "none";
-          showCard(data.customerName, data.memberId);
+          showCard(data.customerName, data.rfid);
         } else {
           statusEl.style.display = "none";
           alert(data.message || "บันทึกไม่สำเร็จ");
-          btn.disabled = false;
         }
       } catch (e) {
         statusEl.style.display = "none";
         alert("ไม่สามารถติดต่อเซิร์ฟเวอร์ได้");
-        btn.disabled = false;
       }
     }
 
     function showCard(name, rfid) {
-      const statusEl = document.getElementById("status");
-      statusEl.style.display = "block";
-      statusEl.innerText = "บัตรสมาชิกของคุณ";
-
-      document.getElementById("custName").innerText = name;
-      document.getElementById("rfidNum").innerText = rfid;
+      document.getElementById("status").style.display = "none";
+      document.getElementById("shopName").innerText = name;
 
       const qrcodeEl = document.getElementById("qrcode");
-      qrcodeEl.innerHTML = ""; // ล้างค่าก่อนหน้า
+      qrcodeEl.innerHTML = "";
 
       new QRCode(qrcodeEl, {
         text: rfid,
-        width: 200,
-        height: 200,
+        width: 220,
+        height: 220,
         colorDark: "#000000",
         colorLight: "#ffffff",
         correctLevel: QRCode.CorrectLevel.M
       });
 
       document.getElementById("cardSection").style.display = "block";
+
+      // อัปเดตเวลาเปิด QR Code ลงฐานข้อมูล
+      fetch(`${GAS_URL}?action=log_qr&rfid=${encodeURIComponent(rfid)}`).catch(() => {});
     }
 
     initApp();
