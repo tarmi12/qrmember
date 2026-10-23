@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>บัตรสมาชิก</title>
+  <!-- LIFF SDK -->
+  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <!-- QR Code Generator Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      background-color: #f7f9fa;
+      color: #333;
+    }
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      text-align: center;
+      width: 85%;
+      max-width: 320px;
+    }
+    #qrcode {
+      margin: 20px auto;
+      display: flex;
+      justify-content: center;
+    }
+    .member-num {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: #06c755;
+      margin-top: 10px;
+    }
+    .status {
+      font-size: 14px;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <div id="status" class="status">กำลังโหลดข้อมูล...</div>
+    <div id="qrcode"></div>
+    <div id="member-num" class="member-num"></div>
+  </div>
+
+  <script>
+    const MY_LIFF_ID = "YOUR_LIFF_ID_HERE"; // นำ LIFF ID ใหม่มาใส่ตรงนี้
+    const GAS_WEBAPP_URL = "YOUR_GAS_DEPLOYMENT_URL_HERE"; // นำ URL จาก Apps Script มาใส่ตรงนี้
+
+    async function main() {
+      try {
+        await liff.init({ liffId: MY_LIFF_ID });
+
+        if (!liff.isLoggedIn()) {
+          liff.login();
+          return;
+        }
+
+        const profile = await liff.getProfile();
+        const userId = profile.userId;
+
+        // เรียกค้นหาข้อมูลจาก Google Sheets
+        const response = await fetch(`${GAS_WEBAPP_URL}?userId=${encodeURIComponent(userId)}`);
+        const result = await response.json();
+
+        const statusEl = document.getElementById("status");
+        if (result.success && result.memberId) {
+          statusEl.innerText = "รหัสสมาชิกของคุณ";
+          document.getElementById("member-num").innerText = result.memberId;
+
+          // สร้าง QR Code ขนาด 200x200 px ด้วย Member ID 10 หลัก
+          new QRCode(document.getElementById("qrcode"), {
+            text: result.memberId,
+            width: 200,
+            height: 200,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.M
+          });
+        } else {
+          statusEl.innerText = "ไม่พบข้อมูลสมาชิกในระบบ";
+        }
+      } catch (err) {
+        document.getElementById("status").innerText = "เกิดข้อผิดพลาดในการโหลดข้อมูล";
+        console.error(err);
+      }
+    }
+
+    main();
+  </script>
+</body>
+</html>
